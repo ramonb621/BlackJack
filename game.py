@@ -1,10 +1,5 @@
 import random
 
-money = 0
-bet = 0
-stand = False
-hit = False
-
 suits = ('Hearts', 'Diamonds', 'Spades', 'Clubs')
 ranks = ('Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Jack', 'Queen', 'King', 'Ace')
 values = {'Two':2, 'Three':3, 'Four':4, 'Five':5, 'Six':6, 'Seven':7, 'Eight':8, 'Nine':9, 'Ten':10, 'Jack':10, 'Queen':10, 'King':10, 'Ace':11}
@@ -14,7 +9,7 @@ playing = True
 class Card:
 
     '''
-    Output: card type by suit and rank
+    OUTPUT: Card type by suit and rank
     '''
 
     def __init__(self, suit, rank):
@@ -30,27 +25,28 @@ class Card:
 class Deck:
 
     '''
-    Output: handles shuffling and dealing of cards in deck
+    OUTPUT: Handles shuffling and dealing of cards in deck
     '''
 
     def __init__(self):
-        self.all_cards = []
+        self.deck = []
         for suit in suits:
             for rank in ranks:
-                self.all_cards.append(Card(suit,rank))
+                self.deck.append(Card(suit,rank))
 
     def shuffle(self):
         # shuffles cards in place
-        random.shuffle(self.all_cards)
+        random.shuffle(self.deck)
 
     def deal(self):
-        return self.all_cards.pop()
+        # grabs a card from deck list
+        return self.deck.pop()
 
 
 class Hand:
 
     '''
-    Output: adds a card to players hand and adjusts value of aces to either 1 or 11 depending on if hand is over 21
+    OUTPUT: Adds a card to players hand and adjusts value of aces to either 1 or 11 depending on if hand is over 21
     '''
 
     def __init__(self):
@@ -68,3 +64,72 @@ class Hand:
         while self.value > 21 and self.aces:
             self.value -= 10
             self.aces-= 1
+
+
+class Chips:
+
+    '''
+    OUTPUT: Keeps track of bets and wins
+    '''
+
+    def __init__(self):
+        self.total = 100
+        self.bet = 0
+
+    def win_bet(self):
+        self.total += self.bet
+
+    def lose_bet(self):
+        self.total -= self.bet 
+
+
+def take_bet(chips):
+
+    '''
+    OUTPUT: Will take in a bet using chips class
+    '''
+
+    while True:
+
+        try:
+            chips.bet = int(input("How many chips do you wnat to bet? "))
+        except:
+            print("Please provide an integer.")
+        else:
+            if chips.bet > chips.total:
+                print(f"You don't have enough chips to place this bet. Chips available: {chips.total}")
+            else:
+                break
+
+def hit(deck, hand):
+
+    '''
+    OUTPUT: Will take card from the deck, add it to the players hand, and check for aces in the hand.
+    '''
+
+    hand.add_card(deck.deal())
+    hand.adjust_aces()
+
+def hit_stand(deck, hand):
+    global playing
+
+    '''
+    OUTPUT: will take in players input to see if they want a hit or stand. If player wants a hit, the hit function is called.
+    '''
+
+    while True:
+        try:
+            option = input("What's your move, h for hit or s for stand? ").lower()
+        except:
+            print("Please enter a valid selection.")
+        else:
+            if option[0] == 'h':
+                # hand.add_card(deck.deal())
+                # hand.adjust_aces()
+                hit(deck,hand)
+            elif option[0] == 's':
+                print("Player stands... dealer's turn.")
+                playing = False
+            else:
+                print("Please enter a valid selection.")
+            break
