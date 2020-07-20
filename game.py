@@ -16,7 +16,7 @@ class Card:
 
         self.suit = suit
         self.rank = rank
-        self.value = values[rank]
+        # self.value = values[rank]
 
     def __str__(self):
         return f'{self.rank} of {self.suit}'
@@ -118,21 +118,20 @@ def hit_stand(deck, hand):
     '''
 
     while True:
-        try:
-            option = input("What's your move, h for hit or s for stand? ").lower()
-        except:
-            print("Please enter a valid selection.")
+
+        option = input("What's your move, h for hit or s for stand? ").lower()
+
+        if option[0] == 'h':
+            # hand.add_card(deck.deal())
+            # hand.adjust_aces()
+            hit(deck,hand)
+        elif option[0] == 's':
+            print("Player stands... dealer's turn.")
+            playing = False
         else:
-            if option[0] == 'h':
-                # hand.add_card(deck.deal())
-                # hand.adjust_aces()
-                hit(deck,hand)
-            elif option[0] == 's':
-                print("Player stands... dealer's turn.")
-                playing = False
-            else:
-                print("Please enter a valid selection.")
-            break
+            print("Please enter a valid selection.")
+            continue
+        break
 
 def show_some(player,dealer):
     print("\nDealer's Hand:")
@@ -164,3 +163,82 @@ def dealer_wins(player,dealer,chips):
     
 def push(player,dealer):
     print("Dealer and Player tie! It's a push.")
+
+
+while True:
+    print("Let's play some blackjack y'all!")
+
+    
+    # Create & shuffle the deck, deal two cards to each player
+    new_deck = Deck()
+    new_deck.shuffle()
+
+    player_hand = Hand()
+    player_hand.add_card(new_deck.deal())
+    player_hand.add_card(new_deck.deal())
+
+    dealer_hand = Hand()
+    dealer_hand.add_card(new_deck.deal())
+    dealer_hand.add_card(new_deck.deal())
+
+
+    
+        
+    # Set up the Player's chips
+    player_chips = Chips()
+    
+    
+    # Prompt the Player for their bet
+    print(f"Players chips: {player_chips.total}")
+    take_bet(player_chips)
+
+    
+    # Show cards (but keep one dealer card hidden)
+    show_some(player_hand, dealer_hand)
+    
+    while playing:  # recall this variable from our hit_or_stand function
+        
+        # Prompt for Player to Hit or Stand
+        hit_stand(new_deck, player_hand)
+        
+        
+        # Show cards (but keep one dealer card hidden)
+        show_some(player_hand, dealer_hand)
+        
+        # If player's hand exceeds 21, run player_busts() and break out of loop
+        if player_hand.value > 21:
+            player_busts(player_hand, dealer_hand, player_chips)
+
+            break
+
+    # If Player hasn't busted, play Dealer's hand until Dealer reaches 17
+    if player_hand.value <= 21:
+        while dealer_hand.value < 17:
+        # Alternative to above is below, dealer can keep playing until they beat player or busts...
+        # while dealer_hand.value < player_hand.value:
+            hit(new_deck, dealer_hand)
+    
+        # Show all cards
+        show_all(player_hand, dealer_hand)
+    
+        # Run different winning scenarios
+        if dealer_hand.value > 21:
+            dealer_busts(player_hand, dealer_hand, player_chips)
+        elif dealer_hand.value > player_hand.value:
+            dealer_busts(player_hand, dealer_hand, player_chips)
+        elif dealer_hand.value < player_hand.value:
+            player_wins(player_hand, dealer_hand, player_chips)
+        else:
+           push(player_hand, dealer_hand) 
+    
+    # Inform Player of their chips total 
+        print(f"Players winnings are at: {player_chips.total}")
+    # Ask to play again
+        rematch = input("Want to play again? y/n: ").lower()
+
+        if rematch[0] == "y":
+            playing = True
+            continue
+        else:
+            print("Thanks for playing.")
+            break
